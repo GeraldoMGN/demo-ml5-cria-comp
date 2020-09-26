@@ -10,7 +10,7 @@ const detectionOptions = {
   withDescriptors: false,
 };
 
-function setup() {
+var setup = () => {
   createCanvas(360, 270);
 
   // load up your video
@@ -22,42 +22,26 @@ function setup() {
 
   // Load emoji
   emoji = loadImage(emojiURL);
-}
+};
 
-function modelReady() {
-  faceapi.detect(gotResults);
-}
+// When the model is ready, start the drawing loop
+const modelReady = () => faceapi.detect(gotResults);
 
-function gotResults(err, result) {
-  if (err) {
-    console.log(err);
-    return;
-  }
+// Drawing loop: Drawns the camera and emoji on canvas
+const gotResults = (err, result) => {
+  if (err) return;
   
   detections = result;
 
-  background(255);
   image(video, 0, 0, width, height);
-  if (detections) {
-    if (detections.length > 0) {
-      drawEmoji(detections);
-    }
+  if (detections && detections.length > 0) {
+    drawEmoji(detections);
   }
   
   faceapi.detect(gotResults);
-}
+};
 
-function drawEmoji(detections) {
-  for (let i = 0; i < detections.length; i += 1) {
-    const alignedRect = detections[i].alignedRect;
-    const x = alignedRect._box._x;
-    const y = alignedRect._box._y;
-    const boxWidth = alignedRect._box._width;
-    const boxHeight = alignedRect._box._height;
-
-    noFill();
-    stroke(161, 95, 251);
-    strokeWeight(2);
-    image(emoji ,x, y, boxWidth, boxHeight);
-  }
-}
+const drawEmoji = (detections) => detections.forEach((detection) => {
+  const { x: _x, y: _y, _width, _height } = detection.alignedRect._box;
+  image(emoji, _x, _y, _width, _height);
+});
